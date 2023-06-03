@@ -7,7 +7,7 @@ function MyApp ({ Component, pageProps }) {
 }
 
 MyApp.propTypes = {
-  Component: PropTypes.object,
+  Component: PropTypes.object | PropTypes.function,
   pageProps: PropTypes.object
 }
 
