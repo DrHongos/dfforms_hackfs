@@ -50,21 +50,21 @@ const IpfsComponent = () => {
         listen: [
             "/dns4/wrtc-star1.par.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
             "/dns4/wrtc-star2.sjc.dwebops.pub/tcp/443/wss/p2p-webrtc-star",
-            '/webrtc',
-            '/ip4/127.0.0.1/tcp/ws'
+          //  '/webrtc',
+          //  '/ip4/127.0.0.1/tcp/ws'
         ]
       },
       transports: [
-        webSockets(),
-        webRTC(),
+//        webSockets(),
+//        webRTC(),
         wrtcStar.transport
       ],
-      connectionEncryption: [
-        noise()
-      ],
+//      connectionEncryption: [
+//        noise()
+//      ],
       streamMuxers: [mplex()],
       peerDiscovery: [
-//        wrtcStar.discovery,
+        wrtcStar.discovery,       // this is the big discover 
         pubsubPeerDiscovery({
           topics: ['chat-gossip', 'test-dforms-hackfs', '_peer-discovery._p2p._pubsub']
         }),
@@ -78,27 +78,27 @@ const IpfsComponent = () => {
         pubsub: gossipsub({
           doPX: false,
           emitSelf: true,
-          fallbackToFloodsub: true,
-          floodPublish: true,
+//          fallbackToFloodsub: true,
+//          floodPublish: true,
           canRelayMessage: true,
           allowPublishToZeroPeers: true,
           directConnectTicks: 60,
 //          directPeers: [dirPeer('12D3KooWEbDVySzmBvBVUGdyWx46qC5u2z32M41YeBXtkpYbpjVn')],
-          maxInboundStreams: 4,
-          maxOutboundStreams: 2,
-          mcacheGossip: 10,
-          mcacheLength: 30,
-          fanoutTTL: 5*60e3,
-          seenTTL: 10*60e3,
+//          maxInboundStreams: 4,
+//          maxOutboundStreams: 2,
+//          mcacheGossip: 10,
+//          mcacheLength: 30,
+//          fanoutTTL: 5*60e3,
+//          seenTTL: 10*60e3,
         }),
       },
-      dht: kadDHT(),
+//      dht: kadDHT(),
       relay: {
         advertise: {
           enabled: false,
         },
         hop: {
-          enabled: false,
+          enabled: true,
         },
         autoRelay: {
           enabled: true,
@@ -110,16 +110,20 @@ const IpfsComponent = () => {
       },
       connectionManager: {
         autoDial: true,
-        maxConnections: Infinity,
-        maxEventLoopDelay: Infinity,
+        maxParallelDials: 100,
+        maxParallelDialsPerPeer: 2,
+//        minConnections: 1,
+        maxConnections: 100, // was Infinity
+        maxEventLoopDelay: 5000, //Infinity
+        dialTimeout: 4000 // 4s
       },
       peerStore: {
-        persistence: false,
-        threshold: 0
+        persistence: true,
+        threshold: 100
       },
       peerRouting: {
         refreshManager: {
-          enabled: true,
+          enabled: false, // was true
         }
       },
   
@@ -131,7 +135,7 @@ const IpfsComponent = () => {
     node.addEventListener('peer:discovery', (evt) => {
       const peer = evt.detail
       // No need to dial, autoDial is on
-      // console.log('Discovered:', peer.id.toString())
+       console.log('Discovered:', peer.id.toString())
     })
     
     await node.start()
